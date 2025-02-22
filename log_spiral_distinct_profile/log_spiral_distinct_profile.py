@@ -13,13 +13,12 @@ def run(context):
         
         # Parameters (all values in cm)
         num_sections = 35  # Approximate number of sections
-        rise_factor = 1.05  # Progressive growth factor for rise
-        flat_length_initial = 0.78*.15  # Flat section length in cm (58% top than base)
-        height_initial = 0.15  # Initial height in cm (radius of smallest end)
-        rise_angle = math.radians(90 - 6.666)  # Rising angle converted to radians
-        fall_angle = math.radians(90 - 23.3333)  # Falling angle converted to radians
-        
-        # Create a new sketch
+        rise_factor = 1.05
+        flat_length_initial = 0.78 * 0.15  # 58% top vs base
+        height_initial = 0.15  # cm
+        rise_angle = math.radians(90 - 6.666)   # ~83.334 deg from horizontal
+        fall_angle = math.radians(90 - 23.3333) # ~66.6667 deg from horizontal
+
         sketch = rootComp.sketches.add(rootComp.xYConstructionPlane)
         lines = sketch.sketchCurves.sketchLines
         
@@ -27,55 +26,46 @@ def run(context):
         x, y = 0.0, 0.0
         prev_point = adsk.core.Point3D.create(x, y, 0)
         
-        points = []
+        gap_size = 0.1  # The horizontal gap we want after each segment
+
         for i in range(num_sections):
-            # Compute rise and fall distances progressively (in cm)
-            rise_length = (height_initial * (rise_factor ** i) * cosec(rise_angle))
-            fall_length = (height_initial * (rise_factor ** i) * cosec(fall_angle))
-            flat_length = flat_length_initial * (rise_factor ** i)
-            
+            # Compute rise/fall/flat lengths
+            factor = (rise_factor ** i)
+            rise_length = height_initial * factor * cosec(rise_angle)
+            fall_length = height_initial * factor * cosec(fall_angle)
+            flat_length = flat_length_initial * factor
+
             # Rising segment
             x += rise_length * math.cos(rise_angle)
             y += rise_length * math.sin(rise_angle)
             rise_point = adsk.core.Point3D.create(x, y, 0)
             lines.addByTwoPoints(prev_point, rise_point)
             prev_point = rise_point
-            points.append(rise_point)
-            
+
             # Flat segment (horizontal)
-            x += flat_length 
+            x += flat_length
             flat_point = adsk.core.Point3D.create(x, y, 0)
             lines.addByTwoPoints(prev_point, flat_point)
             prev_point = flat_point
-            points.append(flat_point)
-            
+
             # Falling segment
             x += fall_length * math.cos(fall_angle)
             y -= fall_length * math.sin(fall_angle)
             fall_point = adsk.core.Point3D.create(x, y, 0)
             lines.addByTwoPoints(prev_point, fall_point)
             prev_point = fall_point
-            points.append(fall_point)
-        
-        # Connect the first and last points to close the profile
-        #lines.addByTwoPoints(points[-1], points[0])
-        
-        # Elastic axis
+
+            # AFTER finishing this segment, jump x by 0.1 with NO line
+            x += gap_size
+            prev_point = adsk.core.Point3D.create(x, y, 0)
+
+        # Optionally, you can comment this out if you don't want the elastic axis line
         join_radius = 0
         elastic_start = adsk.core.Point3D.create(0.0, join_radius, 0)
         elastic_end = adsk.core.Point3D.create(x, join_radius, 0)
         lines.addByTwoPoints(elastic_start, elastic_end)
         
-        # Revolve the profile around the elastic axis
-        #prof = sketch.profiles.item(0)
-        #revolve_features = rootComp.features.revolveFeatures
-        #revolve_axis = lines[lines.count - 1]  # Get the last line (elastic axis)
-        #revolve_input = revolve_features.createInput(prof, revolve_axis, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
-        #revolve_angle = adsk.core.ValueInput.createByReal(math.radians(360))
-        #revolve_input.setAngleExtent(False, revolve_angle)
-        #revolve_features.add(revolve_input)
-        
-        ui.messageBox('Elastic axis profile revolved and generated with correct cm units!')
+        ui.messageBox('Profile created with a 0.1 cm gap after each segment.')
     
     except:
         if ui:
