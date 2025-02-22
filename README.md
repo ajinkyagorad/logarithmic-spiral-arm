@@ -2,13 +2,11 @@
 Based on the idea presented in Wang, Zhanchi, Nikolaos M. Freris, and Xi Wei. "SpiRobs: Logarithmic spiral-shaped robots for versatile grasping across scales." Device (2024).
 This repository contains a Fusion 360 scripts for generating a profile for aiding in design of logarithmic spiral arm profile based on specified parameters in the script.
 
-## Usage
-1. Run the provided Fusion 360 script to generate the initial logarithmic spiral arm profile.
-2. After running the script, **manual adjustments** to complete the design. 
-3. The final design can be exported as an STL file for 3D printing or further modifications.
-4. Fusion360 f3d file is provided.
+## info
+1. Fusion 360 scripts used to generate initial logarithmic spiral arm profile, and 3d modelling work on it can be conducted.
+2. 3d files are provided, although could be inaccurate.
 
-Note. project is based on the given diagram, and does not articulately describe the entire arm, precise geometry and string could be necessary for desired performance, I have no idea as I myself haven't tried it yet.
+Note. project is based on the given diagram, and does not articulately describe the entire arm, precise geometry and string could be necessary for desired performance.
 
 ## Embedded STL
 For convenience, a pre-generated **cylindrical spiral arm** STL STEP  file is included in the repository:
